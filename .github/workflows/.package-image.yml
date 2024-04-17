@@ -4,7 +4,7 @@
   # global variables
     # REGISTRY = docker.io/sylenus
     # DOCKER_USER = sylenus
-    # DOCKER_PASS = ****
+    # DOCKER_TOKEN = <docker-hub-access-token>
 
   # production
     # IMAGE_TAG = latest
@@ -75,15 +75,15 @@ jobs:
       REGISTRY: ${{ vars.REGISTRY }}
       IMAGE_TAG: ${{ vars.IMAGE_TAG }}
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
-      DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
 
       - name: Configure docker
         run: |
+          echo $DOCKER_TOKEN | docker login -u $DOCKER_USER --password-stdin
           docker --version
-          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
 
       - name: Package Image
         run: |
