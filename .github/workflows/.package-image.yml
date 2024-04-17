@@ -1,0 +1,105 @@
+
+# Dynamic Environments - controlled in github repo settings
+
+  # global variables
+    # REGISTRY = docker.io/sylenus
+    # DOCKER_USER = sylenus
+    # DOCKER_PASS = ****
+
+  # production
+    # IMAGE_TAG = latest
+
+  # staging
+    # IMAGE_TAG = stage
+
+  # production
+    # IMAGE_TAG = dev
+
+
+name: package-image
+
+# Event Triggers
+on:
+  workflow_dispatch:
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - develop
+      - staging
+      - main
+
+jobs:
+
+  # use github.ref_name for push events
+  set-environment:
+    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'}}
+    runs-on: ubuntu-20.04
+    continue-on-error: false
+    outputs:
+      ENVIRONMENT: ${{ steps.set-environment.outputs.ENVIRONMENT }}
+    steps:
+      - id: set-environment
+        run: |
+          if [[ "${{ github.ref_name }}" == "develop" ]]; then
+            echo "ENVIRONMENT=development" >> $GITHUB_OUTPUT
+          fi
+          if [[ "${{ github.ref_name }}" == "staging" ]]; then
+            echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
+          fi
+          if [[ "${{ github.ref_name }}" == "staging" ]]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
+          fi
+
+  # Package, scan, push container images to docker hub
+  package-image:
+    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-20.04
+    continue-on-error: false
+    needs:
+      - set-environment
+    environment: ${{ needs.set-environment.outputs.ENVIRONMENT }}
+    strategy:
+      matrix:
+        include:
+          # - CONTEXT: py2
+          #   SERVICE_NAME: demo-py2
+          #   CONTEXT_PATH: ./demo-apps/demo-py2/
+          - CONTEXT: py3
+            SERVICE_NAME: demo-py3
+            CONTEXT_PATH: ./demo-apps/demo-py3/
+          # - CONTEXT: r
+          #   SERVICE_NAME: demo-r
+          #   CONTEXT_PATH: ./demo-apps/demo-r/
+    env:
+      REGISTRY: ${{ vars.REGISTRY }}
+      IMAGE_TAG: ${{ vars.IMAGE_TAG }}
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: Configure docker
+        run: |
+          docker --version
+          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+      - name: Package Image
+        run: |
+          docker build -t $REGISTRY/$SERVICE_NAME:$IMAGE_TAG $CONTEXT_PATH
+
+      - name: Scan image
+        uses: anchore/scan-action@v3
+        continue-on-error: false
+        with:
+          image: ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
+          fail-build: true
+          severity-cutoff: low
+          # severity-cutoff: medium
+          by-cve: true
+          output-format: table
+      
+      - name: Push Image
+        run: |
+          docker push $REGISTRY/$SERVICE_NAME:$IMAGE_TAG
