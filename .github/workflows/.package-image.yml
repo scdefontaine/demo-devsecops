@@ -20,15 +20,15 @@ name: package-image
 
 # Event Triggers
 on:
-  workflow_dispatch:
   # pull_request_target:
-  #   types:
-  #     - closed
+    #   types:
+      #     - closed
   push:
     branches:
       - dev
       - staging
       - main
+  workflow_dispatch:
 
 jobs:
 
