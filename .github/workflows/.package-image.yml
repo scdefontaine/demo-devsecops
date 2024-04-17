@@ -87,7 +87,10 @@ jobs:
 
       - name: Package Image
         run: |
-          docker build -t $REGISTRY/$SERVICE_NAME:$IMAGE_TAG $CONTEXT_PATH
+          docker build \
+          -t $REGISTRY/${{ matrix.SERVICE_NAME }}:$IMAGE_TAG \
+          -f ${{ matrix.CONTEXT_PATH }}/Dockerfile
+          ${{ matrix.CONTEXT_PATH }}
 
       - name: Scan image
         uses: anchore/scan-action@v3
@@ -102,4 +105,4 @@ jobs:
       
       - name: Push Image
         run: |
-          docker push $REGISTRY/$SERVICE_NAME:$IMAGE_TAG
+          docker push $REGISTRY/${{ matrix.SERVICE_NAME }}:$IMAGE_TAG
