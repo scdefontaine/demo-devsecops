@@ -25,7 +25,7 @@ on:
     types:
       - closed
     branches:
-      - develop
+      - dev
       - staging
       - main
 
@@ -41,13 +41,13 @@ jobs:
     steps:
       - id: set-environment
         run: |
-          if [[ "${{ github.ref_name }}" == "develop" ]]; then
+          if [[ "${{ github.ref_name }}" == "dev" ]]; then
             echo "ENVIRONMENT=development" >> $GITHUB_OUTPUT
           fi
           if [[ "${{ github.ref_name }}" == "staging" ]]; then
             echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
           fi
-          if [[ "${{ github.ref_name }}" == "staging" ]]; then
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
             echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
           fi
 
