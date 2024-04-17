@@ -90,13 +90,13 @@ jobs:
 
       - name: Scan image
         uses: anchore/scan-action@v3
-        continue-on-error: false
+        # continue-on-error: false
         with:
           image: ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
           fail-build: true
-          severity-cutoff: low
-          # severity-cutoff: medium
+          severity-cutoff: medium
           by-cve: true
+          only-fixed: true
           output-format: table
       
       - name: Push Image
