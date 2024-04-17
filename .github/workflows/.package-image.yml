@@ -65,7 +65,7 @@ jobs:
           #   CONTEXT_PATH: ./demo-apps/demo-py2/
           - CONTEXT: py3
             SERVICE_NAME: demo-py3
-            CONTEXT_PATH: ./demo-apps/demo-py3/
+            CONTEXT_PATH: ./demo-apps/demo-py3
           # - CONTEXT: r
           #   SERVICE_NAME: demo-r
           #   CONTEXT_PATH: ./demo-apps/demo-r/
