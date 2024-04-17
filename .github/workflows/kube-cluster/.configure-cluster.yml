@@ -1,0 +1,58 @@
+
+# this pipeline & respective scripts are being used in leu of puppet, chef or ansible
+
+name: Configure Kubernetes Cluster
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  config-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # authenticate with gcloud
+
+      - name: Configure Gitlab Runner
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: echo "running script to install and configure gitlab runner on gcloud"
+      
+      - name: Install base node config
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: echo "running script to install and configure gitlab runner on gcloud"
+      
+      - name: Configure Master Node
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: echo "running script to install and configure gitlab runner on gcloud"
+      
+      - name: Configure Worker Nodes
+        uses: appleboy/ssh-action@master
+        strategy:
+          matrix:
+            - context: worker-node-1
+              host: "host"
+              script: ./config/worker_node_config.sh
+            - context: worker-node-2
+              host: "host"
+              script: ./config/worker_node_config.sh
+        with:
+          host: ${{ matrix.host }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: ${{ matrix.script }}
+            

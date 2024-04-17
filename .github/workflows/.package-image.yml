@@ -89,7 +89,7 @@ jobs:
         run: |
           docker build \
           -t ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }} \
-          -f ${{ matrix.CONTEXT_PATH }}/Dockerfile
+          -f ${{ matrix.CONTEXT_PATH }}/Dockerfile \
           ${{ matrix.CONTEXT_PATH }}
 
       - name: Scan image
