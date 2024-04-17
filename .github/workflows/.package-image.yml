@@ -31,7 +31,6 @@ jobs:
 
   # use github.ref_name for push events
   set-environment:
-    # if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'}}
     runs-on: ubuntu-20.04
     continue-on-error: false
     outputs:
@@ -51,7 +50,6 @@ jobs:
 
   # Package, scan, push container images to docker hub
   package-image:
-    # if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-20.04
     continue-on-error: false
     needs:
