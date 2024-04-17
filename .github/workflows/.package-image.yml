@@ -88,7 +88,7 @@ jobs:
       - name: Package Image
         run: |
           docker build \
-          -t $REGISTRY/${{ matrix.SERVICE_NAME }}:$IMAGE_TAG \
+          -t ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }} \
           -f ${{ matrix.CONTEXT_PATH }}/Dockerfile
           ${{ matrix.CONTEXT_PATH }}
 
@@ -105,4 +105,4 @@ jobs:
       
       - name: Push Image
         run: |
-          docker push $REGISTRY/${{ matrix.SERVICE_NAME }}:$IMAGE_TAG
+          docker push ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
