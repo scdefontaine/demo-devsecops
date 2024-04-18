@@ -9,7 +9,13 @@ terraform {
     }
   }
   # backend gcs bucket is configured and set in the deployment pipeline
-  # backend "gcs" {}
+  backend "gcs" {}
+
+  # uncomment for local development
+  # backend "gcs" {
+  #   bucket = "<gcp-bucket-name>"
+  #   prefix = "terraform/state"
+  # }
 }
 
 provider "google" {
