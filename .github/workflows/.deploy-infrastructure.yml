@@ -91,7 +91,7 @@ jobs:
       - name: Terraform Init & Plan
         continue-on-error: false
         run: |
-          cd infrastructure
+          cd terraform
           if [[ "${{ env.GCS_BUCKET }}" == "" ]]; then
             terraform init -input=false
           fi
