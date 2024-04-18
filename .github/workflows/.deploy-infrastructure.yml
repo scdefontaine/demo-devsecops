@@ -110,7 +110,7 @@ jobs:
       - name: Terraform Deploy
         continue-on-error: false
         run: |
-          cd infrastructure
+          cd terraform
           if terraform apply -input=false -auto-approve tfplan; then
             echo "Deployment succeeded"
           else
