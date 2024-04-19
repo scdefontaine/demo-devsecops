@@ -28,11 +28,9 @@ on:
         default: python3-alpine
         type: choice
         options:
-        - python2-alpine
-        - python2
-        - python3-alpine
-        - python3
-        - r-base
+          - python2
+          - python3
+          - r-base
       environment:
         description: 'Environment to run tests against'
         type: environment
@@ -44,47 +42,36 @@ on:
         options:
           - numpy
           - pandas
+      cpu-limit:
+        description: 'Set cpu limit'
+        type: choice
+        required: false
+        options:
+          - 500mi
+          - 1gi
+      mem-limit:
+        description: 'Set cpu limit'
+        type: choice
+        required: false
+        options:
+          - 500mi
+          - 1gi
+      gpu-limit:
+        description: 'Set cpu limit'
+        type: choice
+        required: false
+        options:
+          - 500mi
+          - 1gi
+
 
 jobs:
-
-  # use github.ref_name for push events
-  set-environment:
-    runs-on: ubuntu-20.04
-    continue-on-error: false
-    outputs:
-      ENVIRONMENT: ${{ steps.set-environment.outputs.ENVIRONMENT }}
-    steps:
-      - id: set-environment
-        run: |
-          if [[ "${{ github.ref_name }}" == "dev" ]]; then
-            echo "ENVIRONMENT=development" >> $GITHUB_OUTPUT
-          fi
-          if [[ "${{ github.ref_name }}" == "staging" ]]; then
-            echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
-          fi
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
-          fi
 
   # Package, scan, push container images to docker hub
   package-image:
     runs-on: ubuntu-20.04
     continue-on-error: false
-    needs:
-      - set-environment
-    environment: ${{ needs.set-environment.outputs.ENVIRONMENT }}
-    strategy:
-      matrix:
-        include:
-          # - CONTEXT: py2
-          #   SERVICE_NAME: demo-py2
-          #   CONTEXT_PATH: ./demo-apps/demo-py2/
-          - CONTEXT: py3
-            SERVICE_NAME: demo-py3
-            CONTEXT_PATH: ./demo-apps/demo-py3
-          # - CONTEXT: r
-          #   SERVICE_NAME: demo-r
-          #   CONTEXT_PATH: ./demo-apps/demo-r/
+    environment: ${{ inputs.environment }}
     env:
       REGISTRY: ${{ vars.REGISTRY }}
       IMAGE_TAG: ${{ vars.IMAGE_TAG }}
@@ -100,19 +87,47 @@ jobs:
           docker --version
 
       - name: Package Python3 Image
-        if: ${{ inputs.}}
+        if: ${{ inputs.base-image == 'python3' }}
+        env:
+          SERVICE_NAME: demo-py3
+          CONTEXT_PATH: ./demo-apps/demo-py3
         run: |
           docker build \
-          -t ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }} \
-          -f ${{ matrix.CONTEXT_PATH }}/Dockerfile \
-          ${{ matrix.CONTEXT_PATH }}
+          -t $REGISTRY/$SERVICE_NAME:$IMAGE_TAG \
+          -f $CONTEXT_PATH/Dockerfile \
+          --build-arg="BASE_IMAGE=${{ inputs.base-image }}" \
+          $CONTEXT_PATH
+      
+      # - name: Package Python2 Image
+      #   if: ${{ inputs.base-image == 'python2' }}
+      #   env:
+      #     SERVICE_NAME: demo-py2
+      #     CONTEXT_PATH: ./demo-apps/demo-py2
+      #   run: |
+      #     docker build \
+      #     -t $REGISTRY/$SERVICE_NAME:$IMAGE_TAG \
+      #     -f $CONTEXT_PATH/Dockerfile \
+      #     --build-arg="BASE_IMAGE=${{ inputs.base-image }}" \
+      #     $CONTEXT_PATH
+      
+      # - name: Package R Image
+      #   if: ${{ inputs.base-image == 'r-base' }}
+      #   env:
+      #     SERVICE_NAME: demo-r
+      #     CONTEXT_PATH: ./demo-apps/demo-r
+      #   run: |
+      #     docker build \
+      #     -t $REGISTRY/$SERVICE_NAME:$IMAGE_TAG \
+      #     -f $CONTEXT_PATH/Dockerfile \
+      #     --build-arg="BASE_IMAGE=${{ inputs.base-image }}" \
+      #     $CONTEXT_PATH
 
       - name: Scan image
         uses: anchore/scan-action@v3
         # continue-on-error: false
         continue-on-error: true
         with:
-          image: ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
+          image: $REGISTRY/$SERVICE_NAME:$IMAGE_TAG
           fail-build: true
           severity-cutoff: medium
           by-cve: true
@@ -122,3 +137,74 @@ jobs:
       - name: Push Image
         run: |
           docker push ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
+  
+  # helm-deploy:
+  #   runs-on: ubuntu-20.04
+  #   continue-on-error: false
+  #   environment: ${{ inputs.environment }}
+  #   env:
+  #     REGISTRY: ${{ vars.REGISTRY }}
+  #     GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  #     IMAGE_TAG: ${{ vars.IMAGE_TAG }}
+  #   steps:
+  #     - name: Checkout codebase
+  #       uses: actions/checkout@v4
+        
+  #     - name: Authenticate with gcloud
+  #       uses: google-github-actions/auth@v1
+  #       continue-on-error: false
+  #       with:
+  #         credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+  #     - name: Setup gcloud
+  #       continue-on-error: false
+  #       uses: google-github-actions/setup-gcloud@v1
+      
+  #     - name: Setup kubectl, helm and set kubeconfig
+  #       continue-on-error: false
+  #       env:
+  #         KUBECONFIG_FILE: ${{ secrets.KUBECONFIG_FILE }}
+  #       run: |
+  #         echo "Installing kubectl..."
+  #         apt-get update && apt-get install -y apt-transport-https gnupg2 curl
+  #         curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+  #         echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
+  #         apt-get update
+  #         apt-get install -y kubectl
+          
+  #         echo "Installing Helm..."
+  #         curl -fsSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+          
+  #         echo "Configuring kubectl..."
+  #         export KUBECONFIG=$KUBECONFIG
+  #         kubectl config view
+      
+  #     - name: Terraform Init & Plan
+  #       continue-on-error: false
+  #       run: |
+  #         cd terraform
+  #         if [[ "${{ env.GCS_BUCKET }}" == "" ]]; then
+  #           terraform init -input=false
+  #         fi
+  #         if [[ "${{ env.GCS_BUCKET }}" != "" ]]; then
+  #           terraform init -input=false \
+  #             -backend-config="bucket=${{ env.GCS_BUCKET }}" \
+  #             -backend-config="prefix=terraform/state"
+  #         fi
+  #         terraform plan -input=false \
+  #           -var="project=${{ env.GCP_PROJECT_ID }}" \
+  #           -var="cluster_name=${{ env.CLUSTER_NAME }}" \
+  #           -var="environment=${{ env.ENV }}" \
+  #           -var="source_ip_address=${{ env.SOURCE_IP_ADDRESS }}" \
+  #           -out=tfplan
+      
+  #     - name: Terraform Deploy
+  #       continue-on-error: false
+  #       run: |
+  #         cd terraform
+  #         if terraform apply -input=false -auto-approve tfplan; then
+  #           echo "Deployment succeeded"
+  #         else
+  #           echo "Service account not fully created - redeploying..."
+  #           terraform apply -input=false -auto-approve tfplan
+  #         fi

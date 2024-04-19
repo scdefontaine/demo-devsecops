@@ -8,51 +8,5 @@ on:
 
 jobs:
 
-  config-cluster:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Authenticate with gcloud
-        uses: google-github-actions/auth@v1
-        continue-on-error: false
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-      
-      - name: Setup gcloud
-        continue-on-error: false
-        uses: google-github-actions/setup-gcloud@v1
-
-      # - name: Configure Gitlab Runner
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.HOST }}
-      #     username: ${{ secrets.USERNAME }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     script: echo "running script to install and configure gitlab runner on gcloud"
-      
-      - name: Install base node config
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: echo "running script to install and configure gitlab runner on gcloud"
-      
-      # - name: Configure Master Node
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.HOST }}
-      #     username: ${{ secrets.USERNAME }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     script: echo "running script to install and configure gitlab runner on gcloud"
-      
-      # - name: Configure Worker Nodes
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ matrix.host }}
-      #     username: ${{ secrets.USERNAME }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     script: ${{ matrix.script }}
+  
             
