@@ -30,21 +30,22 @@ on:
       base-image:
         description: 'Base container image'
         required: true
-        default: python3-alpine
+        default: ''
         type: choice
         options:
-          # - python2
-          - python3
-          # - r-base
+          # - "python:2"
+          - "python:3.10"
+          # - "r-base:latest"
       environment:
         description: 'Environment to run tests against'
         type: environment
         required: true
+        default: development
       packages:
         description: 'Additional packages to install'
         type: choice
         required: false
-        default: none
+        default: ''
         options:
           - numpy
           - pandas
@@ -52,6 +53,7 @@ on:
         description: 'Set cpu limit'
         type: choice
         required: false
+        default: ''
         options:
           - 1
           - 2
@@ -61,6 +63,7 @@ on:
         description: 'Set memory limit'
         type: choice
         required: false
+        default: ''
         options:
           - 500m
           - 2048m
