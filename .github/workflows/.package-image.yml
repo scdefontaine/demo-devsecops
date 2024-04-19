@@ -20,12 +20,30 @@ name: package-image
 
 # Event Triggers
 on:
-  push:
-    branches:
-      - dev
-      - staging
-      - main
-  # workflow_dispatch:
+  workflow_dispatch:
+    inputs:
+      base-image:
+        description: 'Base container image'
+        required: true
+        default: python3-alpine
+        type: choice
+        options:
+        - python2-alpine
+        - python2
+        - python3-alpine
+        - python3
+        - r-base
+      environment:
+        description: 'Environment to run tests against'
+        type: environment
+        required: true
+      packages:
+        description: 'Additional packages to install'
+        type: choice
+        required: false
+        options:
+          - numpy
+          - pandas
 
 jobs:
 
@@ -81,7 +99,8 @@ jobs:
           echo $DOCKER_TOKEN | docker login -u $DOCKER_USER --password-stdin
           docker --version
 
-      - name: Package Image
+      - name: Package Python3 Image
+        if: ${{ inputs.}}
         run: |
           docker build \
           -t ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }} \

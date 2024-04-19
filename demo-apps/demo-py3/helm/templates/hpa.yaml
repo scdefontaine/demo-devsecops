@@ -1,14 +1,15 @@
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: demo-hpa
+  name: "{{ .Values.name }}-hpa"
+  namespace: {{ .Values.namespace }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: demo-deployment
+    name: {{ .Values.name }}
   minReplicas: 1
-  maxReplicas: 10
+  maxReplicas: 5
   metrics:
   - type: Resource
     resource:

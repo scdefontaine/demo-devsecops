@@ -1,12 +1,13 @@
 apiVersion: "autoscaling.k8s.io/v1"
 kind: VerticalPodAutoscaler
 metadata:
-  name: demo-vpa
+  name: "{{ .Values.name }}-vpa"
+  namespace: {{ .Values.namespace }}
 spec:
   targetRef:
     apiVersion: "apps/v1"
     kind: Deployment
-    name: demo-deployment
+    name: {{ .Values.name }}
   updatePolicy:
     updateMode: "Auto"
   resourcePolicy:
