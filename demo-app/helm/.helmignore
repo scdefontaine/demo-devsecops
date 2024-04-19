@@ -1,0 +1,4 @@
+./templates/ingress.yaml
+./templates/vpa.yaml
+./templates/demo-role.yaml
+./templates/clusterrolebinding.yaml
