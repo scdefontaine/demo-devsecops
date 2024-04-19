@@ -1,6 +1,11 @@
 # Use an official R base image
 FROM r-base:latest
 
+FROM r-base
+COPY . /usr/local/src/myscripts
+WORKDIR /usr/local/src/myscripts
+CMD ["Rscript", "myscript.R"]
+
 # Set maintainer information (optional)
 LABEL maintainer="yourname@example.com"
 
