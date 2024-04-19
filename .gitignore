@@ -1,0 +1,7 @@
+__pycache__
+.vagrant
+.terraform
+.terraform*
+*.tfstate*
+.tfvars
+terraform/terraform.tfvars

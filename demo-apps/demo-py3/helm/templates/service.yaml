@@ -1,0 +1,22 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.name }}
+    app.kubernetes.io/component: {{ .Values.name }}
+    app.kubernetes.io/instance: {{ .Values.name }}
+    app.kubernetes.io/part-of: {{ .Values.name }}
+spec:
+  selector:
+    deployment: {{ .Values.name }}
+    app.kubernetes.io/part-of: {{ .Values.name }}
+  type: NodePort
+  sessionAffinity: None
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  ports:
+  - protocol: TCP
+    port: 22
