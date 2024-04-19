@@ -90,6 +90,8 @@ jobs:
       IMAGE_TAG: ${{ vars.IMAGE_TAG }}
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+      SERVICE_NAME: demo-py3
+      CONTEXT_PATH: ./demo-app
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
@@ -100,10 +102,6 @@ jobs:
           docker --version
 
       - name: Package Python3 Image
-        if: ${{ inputs.base-image == 'python3' }}
-        env:
-          SERVICE_NAME: demo-py3
-          CONTEXT_PATH: ./demo-app
         run: |
           docker build \
           -t $REGISTRY/$SERVICE_NAME:$IMAGE_TAG \
@@ -195,32 +193,4 @@ jobs:
   #         export KUBECONFIG=$KUBECONFIG
   #         kubectl config view
       
-  #     - name: Terraform Init & Plan
-  #       continue-on-error: false
-  #       run: |
-  #         cd terraform
-  #         if [[ "${{ env.GCS_BUCKET }}" == "" ]]; then
-  #           terraform init -input=false
-  #         fi
-  #         if [[ "${{ env.GCS_BUCKET }}" != "" ]]; then
-  #           terraform init -input=false \
-  #             -backend-config="bucket=${{ env.GCS_BUCKET }}" \
-  #             -backend-config="prefix=terraform/state"
-  #         fi
-  #         terraform plan -input=false \
-  #           -var="project=${{ env.GCP_PROJECT_ID }}" \
-  #           -var="cluster_name=${{ env.CLUSTER_NAME }}" \
-  #           -var="environment=${{ env.ENV }}" \
-  #           -var="source_ip_address=${{ env.SOURCE_IP_ADDRESS }}" \
-  #           -out=tfplan
-      
-  #     - name: Terraform Deploy
-  #       continue-on-error: false
-  #       run: |
-  #         cd terraform
-  #         if terraform apply -input=false -auto-approve tfplan; then
-  #           echo "Deployment succeeded"
-  #         else
-  #           echo "Service account not fully created - redeploying..."
-  #           terraform apply -input=false -auto-approve tfplan
-  #         fi
+  #     # helm deploy
