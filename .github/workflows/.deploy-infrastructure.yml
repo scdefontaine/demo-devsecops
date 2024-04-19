@@ -6,15 +6,19 @@
     # DOCKER_USER = sylenus
     # DOCKER_TOKEN = <docker-hub-access-token>
     # GCP_PROJECT_ID = sean-defontaine
+    # KUBECONFIG_FILE = <string-contents-of-kube-config>
     
     # production
     # IMAGE_TAG = latest
+    # ENV = prod
 
   # staging
     # IMAGE_TAG = staging
+    # ENV = staging
 
   # development
     # IMAGE_TAG = dev
+    # ENV = dev
 
 
 name: Deploy infrastructure
@@ -28,43 +32,18 @@ on:
         required: true
 
 jobs:
-
-  # use github.ref_name for push events
-  set-environment:
-    runs-on: ubuntu-20.04
-    continue-on-error: false
-    outputs:
-      ENVIRONMENT: ${{ steps.set-environment.outputs.ENVIRONMENT }}
-      ENV: ${{ steps.set-environment.outputs.ENV }}
-    steps:
-      - id: set-environment
-        run: |
-          if [[ "${{ github.ref_name }}" == "dev" ]]; then
-            echo "ENVIRONMENT=development" >> $GITHUB_OUTPUT
-            echo "ENV=dev" >> $GITHUB_OUTPUT
-          fi
-          if [[ "${{ github.ref_name }}" == "staging" ]]; then
-            echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
-            echo "ENV=staging" >> $GITHUB_OUTPUT
-          fi
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
-            echo "ENV=prod" >> $GITHUB_OUTPUT
-          fi
   
   terraform-deploy:
     runs-on: ubuntu-20.04
     continue-on-error: false
-    needs:
-      - set-environment
-    environment: ${{ needs.set-environment.outputs.ENVIRONMENT }}
+    environment: ${{ inputs.environment }}
     env:
       REGISTRY: ${{ vars.REGISTRY }}
       GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
       IMAGE_TAG: ${{ vars.IMAGE_TAG }}
       GCS_BUCKET: ${{ vars.GCS_BUCKET }}
       SOURCE_IP_ADDRESS: ${{ secrets.SOURCE_IP_ADDRESS }}
-      ENV: ${{ needs.set-environment.outputs.ENV }}
+      ENV: ${{ vars.ENV }}
       CLUSTER_NAME: kube-cluster
     steps:
       - name: Checkout codebase
@@ -92,19 +71,19 @@ jobs:
         continue-on-error: false
         run: |
           cd terraform
-          if [[ "${{ env.GCS_BUCKET }}" == "" ]]; then
+          if [[ "$GCS_BUCKET" == "" ]]; then
             terraform init -input=false
           fi
-          if [[ "${{ env.GCS_BUCKET }}" != "" ]]; then
+          if [[ "$GCS_BUCKET" != "" ]]; then
             terraform init -input=false \
-              -backend-config="bucket=${{ env.GCS_BUCKET }}" \
+              -backend-config="bucket=$GCS_BUCKET" \
               -backend-config="prefix=terraform/state"
           fi
           terraform plan -input=false \
-            -var="project=${{ env.GCP_PROJECT_ID }}" \
-            -var="cluster_name=${{ env.CLUSTER_NAME }}" \
-            -var="environment=${{ env.ENV }}" \
-            -var="source_ip_address=${{ env.SOURCE_IP_ADDRESS }}" \
+            -var="project=$GCP_PROJECT_ID" \
+            -var="cluster_name=$CLUSTER_NAME" \
+            -var="environment=$ENV" \
+            -var="source_ip_address=$SOURCE_IP_ADDRESS" \
             -out=tfplan
       
       - name: Terraform Deploy
