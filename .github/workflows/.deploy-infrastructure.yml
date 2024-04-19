@@ -1,5 +1,5 @@
 
-# Dynamic Environments - controlled in github repo settings
+# Dynamic Environments - controlled in github repo environment settings
 
   # production
     # IMAGE_TAG = latest
@@ -7,18 +7,29 @@
     # DOCKER_USER = sylenus
     # DOCKER_TOKEN = <docker-hub-access-token>
     # GCP_SA_KEY = <google-application-credentials>
+    # GCS_BUCKET = <terraform-state-gcs-bucket>
+    # SOURCE_IP_ADDRESS = <local-router-ext-ip> # locks gcp net access to ip
+    # ENV = prod # used for gcp vm tags
 
   # staging
-    # IMAGE_TAG = stage
+    # IMAGE_TAG = latest
     # REGISTRY = docker.io/sylenus
     # DOCKER_USER = sylenus
     # DOCKER_TOKEN = <docker-hub-access-token>
+    # GCP_SA_KEY = <google-application-credentials>
+    # GCS_BUCKET = <terraform-state-gcs-bucket>
+    # SOURCE_IP_ADDRESS = <local-router-ext-ip> # locks gcp net access to ip
+    # ENV = prod # used for gcp vm tags
 
   # development
-    # IMAGE_TAG = dev
+    # IMAGE_TAG = latest
     # REGISTRY = docker.io/sylenus
     # DOCKER_USER = sylenus
     # DOCKER_TOKEN = <docker-hub-access-token>
+    # GCP_SA_KEY = <google-application-credentials>
+    # GCS_BUCKET = <terraform-state-gcs-bucket>
+    # SOURCE_IP_ADDRESS = <local-router-ext-ip> # locks gcp net access to ip
+    # ENV = prod # used for gcp vm tags
 
 name: Deploy infrastructure
 
