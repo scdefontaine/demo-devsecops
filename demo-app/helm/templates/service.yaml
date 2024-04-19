@@ -18,5 +18,10 @@ spec:
     clientIP:
       timeoutSeconds: 10800
   ports:
-  - protocol: TCP
+  - name: ssh-port
+    protocol: TCP
     port: 22
+  - name: 3000-tcp
+    protocol: TCP
+    port: 80
+    targetPort: 3000
