@@ -62,6 +62,7 @@ on:
         required: false
         options:
           - 500m
+          - 2048m
           - 1g
           - 2g
       # gpu-limit:
@@ -98,7 +99,7 @@ jobs:
         if: ${{ inputs.base-image == 'python3' }}
         env:
           SERVICE_NAME: demo-py3
-          CONTEXT_PATH: ./demo-apps/demo-py3
+          CONTEXT_PATH: ./demo-app
         run: |
           docker build \
           -t $REGISTRY/$SERVICE_NAME:$IMAGE_TAG \
