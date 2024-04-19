@@ -40,13 +40,13 @@ on:
         description: 'Environment to run tests against'
         type: environment
         required: true
-      # packages:
-      #   description: 'Additional packages to install'
-      #   type: choice
-      #   required: false
-      #   options:
-      #     - numpy
-      #     - pandas
+      packages:
+        description: 'Additional packages to install'
+        type: choice
+        required: false
+        options:
+          - numpy
+          - pandas
       cpu-limit:
         description: 'Set cpu limit'
         type: choice
@@ -105,6 +105,7 @@ jobs:
           -t $REGISTRY/$SERVICE_NAME:$IMAGE_TAG \
           -f $CONTEXT_PATH/Dockerfile \
           --build-arg="BASE_IMAGE=${{ inputs.base-image }}" \
+          --build-arg="ADDITIONAL_PACKAGES=${{ inputs.packages }}" \
           --build-arg="CPU_LIMIT=${{ inputs.cpu-limit }}" \
           --build-arg="MEM_LIMIT=${{ inputs.mem-limit }}" \
           $CONTEXT_PATH
