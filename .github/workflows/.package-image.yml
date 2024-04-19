@@ -1,19 +1,24 @@
 
 # Dynamic Environments - controlled in github repo settings
 
-  # global variables
+  # production
+    # IMAGE_TAG = latest
+    # REGISTRY = docker.io/sylenus
+    # DOCKER_USER = sylenus
+    # DOCKER_TOKEN = <docker-hub-access-token>
+    # GCP_SA_KEY = <google-application-credentials>
+
+  # staging
+    # IMAGE_TAG = stage
     # REGISTRY = docker.io/sylenus
     # DOCKER_USER = sylenus
     # DOCKER_TOKEN = <docker-hub-access-token>
 
-  # production
-    # IMAGE_TAG = latest
-
-  # staging
-    # IMAGE_TAG = stage
-
-  # production
+  # development
     # IMAGE_TAG = dev
+    # REGISTRY = docker.io/sylenus
+    # DOCKER_USER = sylenus
+    # DOCKER_TOKEN = <docker-hub-access-token>
 
 
 name: package-image
@@ -28,41 +33,44 @@ on:
         default: python3-alpine
         type: choice
         options:
-          - python2
+          # - python2
           - python3
-          - r-base
+          # - r-base
       environment:
         description: 'Environment to run tests against'
         type: environment
         required: true
-      packages:
-        description: 'Additional packages to install'
-        type: choice
-        required: false
-        options:
-          - numpy
-          - pandas
+      # packages:
+      #   description: 'Additional packages to install'
+      #   type: choice
+      #   required: false
+      #   options:
+      #     - numpy
+      #     - pandas
       cpu-limit:
         description: 'Set cpu limit'
         type: choice
         required: false
         options:
-          - 500mi
-          - 1gi
+          - 1
+          - 2
+          - 3
+          - 4
       mem-limit:
-        description: 'Set cpu limit'
+        description: 'Set memory limit'
         type: choice
         required: false
         options:
-          - 500mi
-          - 1gi
-      gpu-limit:
-        description: 'Set cpu limit'
-        type: choice
-        required: false
-        options:
-          - 500mi
-          - 1gi
+          - 500m
+          - 1g
+          - 2g
+      # gpu-limit:
+      #   description: 'Set gpu limit'
+      #   type: choice
+      #   required: false
+      #   options:
+      #     - 1
+      #     - 2
 
 
 jobs:
@@ -96,6 +104,8 @@ jobs:
           -t $REGISTRY/$SERVICE_NAME:$IMAGE_TAG \
           -f $CONTEXT_PATH/Dockerfile \
           --build-arg="BASE_IMAGE=${{ inputs.base-image }}" \
+          --build-arg="CPU_LIMIT=${{ inputs.cpu-limit }}" \
+          --build-arg="MEM_LIMIT=${{ inputs.mem-limit }}" \
           $CONTEXT_PATH
       
       # - name: Package Python2 Image
@@ -136,7 +146,7 @@ jobs:
       
       - name: Push Image
         run: |
-          docker push ${{ env.REGISTRY }}/${{ matrix.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
+          docker push $REGISTRY/$SERVICE_NAME:$IMAGE_TAG
   
   # helm-deploy:
   #   runs-on: ubuntu-20.04

@@ -1,8 +1,14 @@
 ARG BASE_IMAGE=python:3.10
 ARG PLATFORM_ARCH=amd64
-FROM --platform=${PLATFORM_ARCH} ${BASE_IMAGE} as builder
+FROM --platform=${PLATFORM_ARCH} ${BASE_IMAGE}
 
 WORKDIR /app
+
+ARG CPU_LIMIT=2
+ARG MEM_LIMIT=2048m
+
+ENV APP_CPU_LIMIT=$CPU_LIMIT
+ENV APP_MEM_LIMIT=$MEM_LIMIT
 
 COPY ./requirements.txt ${WORKDIR}/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r ${WORKDIR}/requirements.txt

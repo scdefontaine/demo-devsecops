@@ -1,25 +1,24 @@
 
 # Dynamic Environments - controlled in github repo settings
 
-  # global variables
+  # production
+    # IMAGE_TAG = latest
     # REGISTRY = docker.io/sylenus
     # DOCKER_USER = sylenus
     # DOCKER_TOKEN = <docker-hub-access-token>
-    # GCP_PROJECT_ID = sean-defontaine
-    # KUBECONFIG_FILE = <string-contents-of-kube-config>
-    
-    # production
-    # IMAGE_TAG = latest
-    # ENV = prod
+    # GCP_SA_KEY = <google-application-credentials>
 
   # staging
-    # IMAGE_TAG = staging
-    # ENV = staging
+    # IMAGE_TAG = stage
+    # REGISTRY = docker.io/sylenus
+    # DOCKER_USER = sylenus
+    # DOCKER_TOKEN = <docker-hub-access-token>
 
   # development
     # IMAGE_TAG = dev
-    # ENV = dev
-
+    # REGISTRY = docker.io/sylenus
+    # DOCKER_USER = sylenus
+    # DOCKER_TOKEN = <docker-hub-access-token>
 
 name: Deploy infrastructure
 
